@@ -69,38 +69,32 @@ function deleteWorkflow(index) {
 let currentImageDataUrl = '';
 
 async function generateImage() {
-  const apiKey = localStorage.getItem('gemini_api_key');
   const prompt = document.getElementById('prompt-input').value.trim();
   const statusMsg = document.getElementById('status-msg');
   const imgResult = document.getElementById('image-result');
   const dlBtn = document.getElementById('download-btn');
 
-  if (!apiKey) return alert('Please set your API key in the Environment tab first.');
   if (!prompt) return alert('Please enter a prompt.');
 
-  statusMsg.innerText = 'Sending request to Gemini...';
+  statusMsg.innerText = 'Sending request to secure backend...';
   imgResult.style.display = 'none';
   dlBtn.style.display = 'none';
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
-  const payload = {
-    instances: [{ prompt: prompt }],
-    parameters: { sampleCount: 1, outputOptions: { mimeType: "image/png" } }
-  };
-
   try {
-    const response = await fetch(url, {
+    // Notice we are now fetching from our own Cloudflare Function, NOT Google directly
+    const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ prompt: prompt })
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.error?.message || 'API request failed');
+      throw new Error(data.error?.message || data.error || 'API request failed');
     }
 
-    const data = await response.json();
+    // Extract the image from the returned JSON
     const b64Data = data.predictions[0].bytesBase64Encoded;
     
     currentImageDataUrl = `data:image/png;base64,${b64Data}`;
@@ -114,6 +108,7 @@ async function generateImage() {
     console.error(err);
   }
 }
+
 
 function downloadImage() {
   if (!currentImageDataUrl) return;
