@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Workflow Hub</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root { --bg: #121212; --surface: #1e1e1e; --primary: #bb86fc; --text: #e0e0e0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    button { background: var(--surface); color: var(--primary); border: 1px solid var(--primary); padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+    button:hover { background: var(--primary); color: var(--bg); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    textarea, input { width: 100%; background: var(--surface); color: var(--text); border: 1px solid #333; padding: 10px; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; }
+    textarea { height: 150px; font-family: monospace; resize: vertical; }
+    #image-result { margin-top: 20px; max-width: 100%; border-radius: 8px; display: none; }
+    .workflow-item { background: var(--surface); padding: 10px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>GenHub</h2>
+    <nav>
+      <button onclick="showTab('generate')">Run</button>
+      <button onclick="showTab('workflows')">Saved Workflows</button>
+      <button onclick="showTab('settings')">Environment</button>
+    </nav>
+
+    <div id="generate" class="tab-content active">
+      <textarea id="prompt-input" placeholder="Paste your markdown structure here..."></textarea>
+      <button onclick="generateImage()">Generate Image</button>
+      <p id="status-msg"></p>
+      <img id="image-result" alt="Generated Output">
+      <br>
+      <button id="download-btn" style="display:none; margin-top:10px;" onclick="downloadImage()">Download PNG</button>
+    </div>
+
+    <div id="workflows" class="tab-content">
+      <input type="text" id="wf-title" placeholder="Workflow Title">
+      <textarea id="wf-prompt" placeholder="Markdown structure to save..."></textarea>
+      <button onclick="saveWorkflow()">Save Workflow</button>
+      <div id="workflow-list" style="margin-top: 20px;"></div>
+    </div>
+
+    <div id="settings" class="tab-content">
+      <label>Gemini API Key</label>
+      <input type="password" id="api-key" placeholder="AIzaSy...">
+      <button onclick="saveSettings()">Save Configuration</button>
+      <p style="font-size: 0.85em; color: #888;">Keys are saved locally in your browser's localStorage. Do not host this app publicly without authentication.</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
